@@ -1,32 +1,19 @@
-import React, { useContext, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  Button,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
-import { AuthContext } from '../context/AuthProvider';
-import { useTodos, Todo } from '../hooks/useTodos';
+import React from 'react';
+import { View, Text, FlatList, TextInput, Button, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { useAuth } from '../context/AuthProvider';  // Dùng hook lấy context
+import { useTodos } from '../hooks/useTodos';
 
 export default function TodoListScreen() {
-  const authContext = useContext(AuthContext);
-  if (!authContext) throw new Error('AuthContext must be used within AuthProvider');
+  const { user, loading: authLoading } = useAuth();
 
-  const { user, loading: authLoading } = authContext;
-
-  // Nếu user chưa đăng nhập hoặc loading auth thì show loading
   if (authLoading || !user) {
     return <ActivityIndicator size="large" style={styles.loading} />;
   }
 
   const { todos, loading: todosLoading, addTodo, updateTodo, deleteTodo } = useTodos(user.uid);
 
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [title, setTitle] = React.useState('');
+  const [description, setDescription] = React.useState('');
 
   if (todosLoading) {
     return <ActivityIndicator size="large" style={styles.loading} />;

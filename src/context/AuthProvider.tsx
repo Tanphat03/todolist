@@ -1,29 +1,27 @@
-// src/context/AuthProvider.tsx
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
-// Định nghĩa kiểu context
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   loading: boolean;
-}
+};
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-});
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+type AuthProviderProps = {
+  children: ReactNode;
+};
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setLoading(false);
     });
-
     return unsubscribe;
   }, []);
 
@@ -34,8 +32,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Export hook để dùng context
-export const useAuth = () => useContext(AuthContext);
-
-// Export context nếu cần (tuỳ bạn)
-export { AuthContext };
+// **Thêm hàm useAuth ở đây**
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

@@ -1,10 +1,9 @@
-// App.tsx hoặc src/App.tsx
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import AuthStack from './src/navigation/AuthStack';
-import TodoStack from './src/navigation/TodoStack';
-import { AuthProvider, useAuth } from './src/context/AuthProvider';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import AuthStack from './src/navigation/AuthStack'; // Stack cho màn hình login/register
+import TodoStack from './src/navigation/TodoStack';   // Stack sau khi login
+import { AuthProvider, useAuth } from './src/context/AuthProvider';
 
 const AppNavigation = () => {
   const { user, loading } = useAuth();
@@ -31,11 +30,6 @@ export default function App() {
     </AuthProvider>
   );
 }
-
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center',
-  },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

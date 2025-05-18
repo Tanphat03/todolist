@@ -15,10 +15,9 @@ import {
   updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
-import { db } from '../firebase/config'; // cấu hình Firebase của bạn
+import { db } from '../firebase/config'; // Đường dẫn tới file cấu hình Firebase của bạn
 
-// Interface kiểu dữ liệu Todo
-interface Todo {
+interface TodoData {
   title: string;
   description: string;
   completed?: boolean;
@@ -29,7 +28,7 @@ interface Todo {
 interface TodoDetailScreenProps {
   route: {
     params: {
-      todoId: string;
+      id: string;  // trùng với TodoStackParamList
     };
   };
   navigation: any;
@@ -39,22 +38,21 @@ export default function TodoDetailScreen({
   route,
   navigation,
 }: TodoDetailScreenProps) {
-  const { todoId } = route.params;
+  const { id } = route.params;
 
-  const [todo, setTodo] = useState<Todo | null>(null);
+  const [todo, setTodo] = useState<TodoData | null>(null);
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
-    const docRef = doc(db, 'todos', todoId);
-
+    const docRef = doc(db, 'todos', id);
     const unsubscribe = onSnapshot(
       docRef,
       (docSnap) => {
         if (docSnap.exists()) {
-          const data = docSnap.data() as Todo;
+          const data = docSnap.data() as TodoData;
           setTodo(data);
           setTitle(data.title);
           setDescription(data.description);
@@ -71,16 +69,17 @@ export default function TodoDetailScreen({
     );
 
     return () => unsubscribe();
-  }, [todoId, navigation]);
+  }, [id, navigation]);
 
   const handleSave = async () => {
     if (!title.trim()) {
       Alert.alert('Lỗi', 'Tiêu đề không được để trống');
       return;
     }
+
     setSaving(true);
     try {
-      const docRef = doc(db, 'todos', todoId);
+      const docRef = doc(db, 'todos', id);
       await updateDoc(docRef, {
         title,
         description,
@@ -96,7 +95,11 @@ export default function TodoDetailScreen({
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" style={styles.loading} />;
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
